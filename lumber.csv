@@ -1,18 +1,17 @@
-dept,via,arr,vol
-Victoria,VictoriaOffshoreSA,Callao,24
-Victoria,VictoriaOffshoreMX,Honolulu,20
-Victoria,VictoriaOffshoreSA,Valparaiso,20
-Victoria,VictoriaOffshoreUS,San Francisco,14
-Victoria,VictoriaOffshoreAS,Shanghai,11
-Victoria,VictoriaOffshoreAU,Sydney,10
-Victoria,VictoriaOffshoreAU,Melbourne,9
-Victoria,VictoriaOffshoreSA,Iquique,4
-Victoria,VictoriaOffshoreMX,Guaymas,3
-Victoria,VictoriaOffshoreAU,Dunedin,3
-Victoria,VictoriaOffshoreAU,Batavia,1
-Victoria,VictoriaOffshoreSA,Coquimbo,1
-Victoria,VictoriaOffshoreAS,Hong Kong,1
-Victoria,VictoriaOffshoreAS,Yokohama,1
-Victoria,VictoriaOffshoreSA,Lambayaque,1
-Victoria,VictoriaOffshoreSA,Tahiti,1
-Victoria,VictoriaOffshoreSA,Arica,1
+destination,vol
+China,0.246
+USA,0.139
+Korea,0.135
+Japan,0.109
+Canada,0.098
+Australia,0.061
+Russia,0.049
+Guaymas,0.035
+Ukraine,0.03378
+Kazakhstan,0.019042
+Germany,0.015
+Uzbekistan,0.021
+Belarus,0.009
+India,0.008
+UnitedArabEmirates,0.999
+SaudiArabia,0.333
