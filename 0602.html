@@ -1,0 +1,590 @@
+<!DOCTYPE HTML >
+<html lang="en">
+<head>
+	<script src="http://d3js.org/d3.v4.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/1.6.19/topojson.min.js"></script>
+	<!-- <script src="https://d3js.org/d3-geo-projection.v1.min.js"></script> -->
+	<!-- add -->
+	<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+	<script src="https://d3js.org/d3-geo-projection.v2.min.js"></script>
+	
+	<script
+	src="https://code.jquery.com/jquery-3.6.0.js"
+	integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+	crossorigin="anonymous"></script>
+
+<style>
+	table, th, td {
+	border: 1px solid black;
+	border-collapse: collapse;
+}
+
+td:hover {background-color: #AE0000;}
+
+	.china_route {
+		fill: none;
+		stroke: #64A600;
+		opacity: 0;
+	}
+
+	.india_route {
+		fill: none;
+		stroke: red;
+		opacity: 0;
+	}
+
+	.mexico_route {
+		fill: none;
+		stroke: #005AB5;
+		opacity: 0;
+	}
+
+	.russia_route {
+		fill: none;
+		stroke: #5151A2;
+		opacity: 0;
+	}
+
+	.syria_route {
+		fill: none;
+		stroke: #424200;
+		opacity: 0;
+	}
+
+/*	.Country { fill:#59FF00;}*/
+	
+	svg { background: #43a2ca; }
+
+	.source-port {
+		fill: white; 
+		stroke: darkgreen; 
+		stroke-width: 2px;
+	}
+</style>
+</head>
+<body>
+	<table>
+			<tr>
+				<td><button id="button_china">China</button></td>
+				<td><button id ="button_india">India</button></td>
+				<td><button id = "button_mexico">Mexico</button></td>
+				<td><button id = "button_russia">Russia</button></td>
+				<td><button id="button_syria">Syria</button></td>
+			</tr>
+			<tr>
+				<td><button id="clean_china">Clean</button></td>
+				<td><button id ="clean_india">Clean</button></td>
+				<td><button id = "clean_mexico">Clean</button></td>
+				<td><button id = "clean_russia">Clean</button></td>
+				<td><button id="clean_syria">Clean</button></td>
+			</tr>
+	</table>
+	<div id="map"> </div>
+	<script>
+		//jquery part
+		$(document).ready(function(){
+			//big rectangle listener
+			$('#button_china').click(function(){
+				show_china("china");
+			});
+
+			//small rectangle listener
+			$('#button_india').click(function(){
+				show_india("india");
+			});
+
+			//fill small rectangle listener
+			$('#button_mexico').click(function(){
+				show_mexico("mexico");
+			});
+
+			$('#button_russia').click(function(){
+				show_russia("russia");
+			});
+
+			$('#button_syria').click(function(){
+				show_syria("syria");
+			});
+
+			$('#clean_china').click(function(){
+				clean_china();
+			});
+
+			$('#clean_india').click(function(){
+				clean_india();
+			});
+
+			$('#clean_mexico').click(function(){
+				clean_mexico();
+			});
+
+			$('#clean_russia').click(function(){
+				clean_russia();
+			});
+
+			$('#clean_syria').click(function(){
+				clean_syria();
+			});
+		});
+
+function clean_china(country){
+	g1.selectAll(".china_route").remove();
+	g2.selectAll(".label_china").remove();
+}
+
+function clean_india(country){
+	g1.selectAll(".india_route").remove();
+	g2.selectAll(".label_india").remove();
+}
+
+function clean_mexico(country){
+	g1.selectAll(".mexico_route").remove();
+	g2.selectAll(".label_mexico").remove();
+}
+
+function clean_russia(country){
+	g1.selectAll(".russia_route").remove();
+	g2.selectAll(".label_russia").remove();
+}
+
+function clean_syria(country){
+	g1.selectAll(".syria_route").remove();
+	g2.selectAll(".label_syria").remove();
+}
+
+
+
+function show_china(country){
+	d3.csv("https://raw.githubusercontent.com/OhBlockByJames/AnimatedFlowMap/main/top.csv", function (error, routes) {
+		var china = routes.slice(0,15);
+		var india = routes.slice(15,32);
+		var mexico = routes.slice(33,34);
+		var russia = routes.slice(35,46);
+		var syria = routes.slice(47,55);
+		var maxVolume = d3.max(routes, function(d) { return d.vol; });
+		//append china path
+		routePath = g1.selectAll(".china_route")//.route
+			.data(china)
+			.enter()
+			.append("path")
+			.attr("class","china_route")
+			.attr('d', function(d) {
+				return path ({ 
+				type:"LineString",
+				coordinates: [ china_ports["China"].loc,china_ports[d.destination].loc ]
+				});
+			})
+			.style("stroke-width", function(d) { 
+				return (d.people/100000);
+			})
+			.transition().duration(500)
+			.style("opacity",0.8)
+		//append china text
+		portLabels = g2.selectAll(".label_china")
+			.data(china)
+			.enter()
+			.append("text")
+			.attr("x", function(d) { return projection(china_ports[d.destination].loc)[0] + china_ports[d.destination].off[0] } )
+			.attr("y", function(d) { return projection(china_ports[d.destination].loc)[1] - china_ports[d.destination].off[1] } )
+			.text(function(d) { return d.destination })
+			.attr("class","label_china")
+			.style("font-size", "10px")
+	});
+		}
+
+function show_india(country){
+	d3.csv("https://raw.githubusercontent.com/OhBlockByJames/AnimatedFlowMap/main/top.csv", function (error, routes) {
+		var india = routes.slice(15,33);
+		var maxVolume = d3.max(routes, function(d) { return d.vol; });
+		//append india path
+		routePath = g1.selectAll(".india_route")
+			.data(india)
+			.enter()
+			.append("path")
+			.attr("class","india_route")
+			.attr('d', function(d) {
+				return path ({ 
+				type:"LineString",
+				coordinates: [ india_ports["India"].loc,india_ports[d.destination].loc ]
+				});
+			})
+			.style("stroke-width", function(d) { 
+				return (d.people/100000);
+			})
+			.transition().duration(500)
+			.style("opacity",0.8)
+		//append india text
+		portLabels = g2.selectAll(".label_india")
+			.data(india)
+			.enter()
+			.append("text")
+			.attr("x", function(d) { return projection(india_ports[d.destination].loc)[0] + india_ports[d.destination].off[0] } )
+			.attr("y", function(d) { return projection(india_ports[d.destination].loc)[1] - india_ports[d.destination].off[1] } )
+			.text(function(d) { return d.destination })
+			.attr("class","label_india")
+			.style("font-size", "10px")
+	});
+		}
+function show_mexico(country){
+	d3.csv("https://raw.githubusercontent.com/OhBlockByJames/AnimatedFlowMap/main/top.csv", function (error, routes) {
+		var mexico = routes.slice(33,35);
+		var maxVolume = d3.max(routes, function(d) { return d.vol; });
+		//append mexico path
+		routePath = g1.selectAll(".mexico_route")
+			.data(mexico)
+			.enter()
+			.append("path")
+			.attr("class","mexico_route")
+			.attr('d', function(d) {
+				return path ({ 
+				type:"LineString",
+				coordinates: [ [-99.09,19.24],[-77,38.9]]
+				});//
+			})
+			.style("stroke-width", function(d) { 
+				return (d.people/100000);
+			})
+			.transition().duration(500)
+			.style("opacity",0.8)
+		//append mexico text
+		portLabels = g2.selectAll(".label_mexico")
+			.data(mexico)
+			.enter()
+			.append("text")
+			.attr("x", function(d) { return projection(mexico_ports[d.destination].loc)[0] + mexico_ports[d.destination].off[0] } )
+			.attr("y", function(d) { return projection(mexico_ports[d.destination].loc)[1] - mexico_ports[d.destination].off[1] } )
+			.text(function(d) { return d.destination })
+			.attr("class","label_mexico")
+			.style("font-size", "10px")
+	});
+		}
+
+function show_russia(country){
+	d3.csv("https://raw.githubusercontent.com/OhBlockByJames/AnimatedFlowMap/main/top.csv", function (error, routes) {
+		var russia = routes.slice(35,47);
+		var maxVolume = d3.max(routes, function(d) { return d.vol; });
+		//append russia path
+		routePath = g1.selectAll(".russia_route")//.route
+			.data(russia)
+			.enter()
+			.append("path")
+			.attr("class","russia_route")
+			.attr('d', function(d) {
+				return path ({ 
+				type:"LineString",
+				coordinates: [ russia_ports["Russia"].loc,russia_ports[d.destination].loc ]
+				});
+			})
+			.style("stroke-width", function(d) { 
+				return (d.people/100000);
+			})
+			.transition().duration(500)
+			.style("opacity",0.8)
+		//append russia text
+		portLabels = g2.selectAll(".label_russia")
+			.data(russia)
+			.enter()
+			.append("text")
+			.attr("x", function(d) { return projection(russia_ports[d.destination].loc)[0] + russia_ports[d.destination].off[0] } )
+			.attr("y", function(d) { return projection(russia_ports[d.destination].loc)[1] - russia_ports[d.destination].off[1] } )
+			.text(function(d) { return d.destination })
+			.attr("class","label_russia")
+			.style("font-size", "10px")
+	});
+		}
+
+function show_syria(country){
+	d3.csv("https://raw.githubusercontent.com/OhBlockByJames/AnimatedFlowMap/main/top.csv", function (error, routes) {
+		var china = routes.slice(0,14);
+		var india = routes.slice(15,32);
+		var mexico = routes.slice(33,34);
+		var russia = routes.slice(35,46);
+		var syria = routes.slice(47,56);
+		routePath = g1.selectAll(".syria_route")//.route
+			.data(syria)
+			.enter()
+			.append("path")
+			.attr("class","syria_route")
+			.attr('d', function(d) {
+				return path ({ 
+				type:"LineString",
+				coordinates: [ syria_ports["Syria"].loc,syria_ports[d.destination].loc ]
+				});
+			})
+			.style("stroke-width", function(d) { 
+				return (d.people/100000);
+			})
+			.transition().duration(500)
+			.style("opacity",0.8)
+		//append syria text
+		portLabels = g2.selectAll(".label_syria")
+			.data(syria)
+			.enter()
+			.append("text")
+			.attr("x", function(d) { return projection(syria_ports[d.destination].loc)[0] + syria_ports[d.destination].off[0] } )
+			.attr("y", function(d) { return projection(syria_ports[d.destination].loc)[1] - syria_ports[d.destination].off[1] } )
+			.text(function(d) { return d.destination })
+			.attr("class","label_syria")
+			.style("font-size", "10px")
+	});
+		}
+
+//d3.js part
+var width = 950; var height = 650;
+var projection = d3.geoKavrayskiy7()
+	.scale(180)
+	.rotate([-150,0])
+	.translate([width/2,height/2])
+	.precision(0.1);
+var path = d3.geoPath().projection(projection);
+var svg = d3.select("#map").append("svg")
+	.attr("width", width)
+	.attr("height", height);
+// Create a few groups to layer elements correctly
+var g1 = svg.append("g");  
+var g2 = svg.append("g");
+var colorScale = d3.scaleThreshold()
+//區分人均gdp等級 
+	.domain([1000, 4000, 8000, 12000, 30000])
+	.range(d3.schemeGreens[6]); 
+var gdpdata = d3.map();
+var q = d3.queue();
+q.defer(d3.json, "https://raw.githubusercontent.com/OhBlockByJames/InternationalMigrant_D3.js/main/map.geojson");
+q.defer(d3.csv, "https://raw.githubusercontent.com/OhBlockByJames/InternationalMigrant_D3.js/main/gdp.csv"
+, function(d) { gdpdata.set(d.code, +d.gdp);});
+q.await(ondraw);
+
+function ondraw(error,dataGeo,data){
+	g1.append("g")
+	.selectAll("path")
+		.data(dataGeo.features)
+		.enter().append("path")
+		.attr("d", d3.geoPath()
+		.projection(projection))
+		.style("stroke", "black")
+		.style("stroke-width", 1)
+		.attr("fill", function (d) {
+		d.total = gdpdata.get(d.id) || 0;
+		//兩個有一個是true 即回傳true
+		console.log("fill");
+		return colorScale(d.total);
+		})
+		//.style("stroke", "transparent")
+		.attr("class", function(d){ return "Country" } )
+		.style("opacity", 0.7)
+		.on("mouseover", mouseOver )
+		.on("mouseleave", mouseLeave )
+		.on("click", Click )
+		drawTrade();
+}
+
+//tooltip
+	var tooltip = d3.select("#map")
+		.append("div")
+		.style("opacity", 0)
+		.attr("class", "tooltip")
+		.style("background-color", "white")
+		.style("border", "solid")
+		.style("border-width", "2px")
+		.style("border-radius", "5px")
+		.style("padding", "5px")
+
+let Click = function(d) {
+	d3.select(this)
+		.style("opacity", 0.7)
+		.style("stroke", "blue")
+		.style("stroke-width", 2)
+	tooltip
+		.style("left", (d3.mouse(this)[0]+70) + "px")
+		.style("top", (d3.mouse(this)[1]) + "px")
+		.html("Country Name: "+d.properties.name)
+		.style("opacity", 1)
+}
+//mouse on map
+let mouseOver = function(d) {
+	d3.selectAll(".Country")
+		.transition()
+		.duration(500)
+		.style("opacity", 0.3)
+		.style("stroke", "black")
+		.style("stroke-width", 1)
+	d3.select(this)
+		.transition()
+		.duration(500)
+		.style("opacity", 0.7)
+		.style("stroke", "red")
+		.style("stroke-width", 2)
+	tooltip
+		.style("left", (d3.mouse(this)[0]+70) + "px")
+		.style("top", (d3.mouse(this)[1]) + "px")
+		.html("Country Name: "+d.properties.name)
+		.style("opacity", 1)
+}
+
+let mouseLeave = function(d) {
+	d3.selectAll(".Country")
+		.transition()
+		.duration(500)
+		.style("opacity", 0.7)
+		.style("stroke", "black")
+		.style("stroke-width", 1)
+	tooltip
+		.style("left", (d3.mouse(this)[0]+70) + "px")
+		.style("top", (d3.mouse(this)[1]) + "px")
+		.style("opacity", 0)
+}
+
+
+// Draw a set of routes 
+function drawTrade() {
+	d3.csv("https://raw.githubusercontent.com/OhBlockByJames/AnimatedFlowMap/main/top.csv", function (error, routes) {
+		var china = routes.slice(0,15);
+		var india = routes.slice(15,33);
+		var mexico = routes.slice(33,35);
+		var russia = routes.slice(35,47);
+		var syria = routes.slice(47,56);
+		var maxVolume = d3.max(routes, function(d) { return d.vol; });
+		
+		//append china circles
+		portMarkers = g1.selectAll(".ports_china")
+			.data(china)
+			.enter()
+			.append("circle")
+			.attr("class","ports")
+			.attr("cx", function(d) { return projection(china_ports[d.destination].loc)[0] } )
+			.attr("cy", function(d) { return projection(china_ports[d.destination].loc)[1] } )
+			.attr("r", function(d) { return d.vol*10 })
+			.style("fill","none")
+			.style("stroke-width",1)
+			.style("stroke","#0000E3");
+
+		//append india circles
+		portMarkers = g1.selectAll(".ports_india")
+			.data(india)
+			.enter()
+			.append("circle")
+			.attr("class","ports_india")
+			.attr("cx", function(d) { return projection(india_ports[d.destination].loc)[0] } )
+			.attr("cy", function(d) { return projection(india_ports[d.destination].loc)[1] } )
+			.attr("r", function(d) { return d.vol*10 })
+			.style("fill","none")
+			.style("stroke-width",1)
+			.style("stroke","#4A4AFF");
+
+		//append mexico circles
+		portMarkers = g1.selectAll(".ports_mexico")
+			.data(mexico)
+			.enter()
+			.append("circle")
+			.attr("class","ports_mexico")
+			.attr("cx", function(d) {return projection(mexico_ports[d.destination].loc)[0] } )
+			.attr("cy", function(d) { return projection(mexico_ports[d.destination].loc)[1] } )
+			.attr("r", function(d) { return d.vol*10 })
+			.style("fill","none")
+			.style("stroke-width",1)
+			.style("stroke","#7D7DFF");
+
+		//append russia circles
+		portMarkers = g1.selectAll(".ports_russia")
+			.data(russia)
+			.enter()
+			.append("circle")
+			.attr("class","ports_mexico")
+			.attr("cx", function(d) { return projection(russia_ports[d.destination].loc)[0] } )
+			.attr("cy", function(d) { return projection(russia_ports[d.destination].loc)[1] } )
+			.attr("r", function(d) { return d.vol*10 })
+			.style("fill","none")
+			.style("stroke-width",1)
+			.style("stroke","#46A3FF");
+
+		//append syria circles
+		portMarkers = g1.selectAll(".ports_syria")
+			.data(syria)
+			.enter()
+			.append("circle")
+			.attr("class","ports_syria")
+			.attr("cx", function(d) { return projection(syria_ports[d.destination].loc)[0] } )
+			.attr("cy", function(d) { return projection(syria_ports[d.destination].loc)[1] } )
+			.attr("r", function(d) { return d.vol*10 })
+			.style("fill","none")
+			.style("stroke-width",1)
+			.style("stroke","#84C1FF");
+			;});
+			}
+
+	// Ports reference and text offset for labels.	
+var china_ports = {
+	China:{loc:[116.4,39.9],off:[-20,0]},
+	USA:{loc:[-77,38.9],off:[0,0]},
+	Korea:{loc:[126.9,37.5],off:[0,0]},
+	Japan:{loc:[139.7,35.7],off:[0,0]},
+	Canada:{loc:[-75.6,45.4],off:[0,10]},
+	Australia:{loc:[149.1,-35.3],off:[0,0]},
+	Singapore:{loc:[103.8,1.3],off:[0,0]},
+	Italy:{loc:[12.3,41.5],off:[0,0]},
+	"United Kingdom":{loc:[-0.1,51.4],off:[-40,0]},
+	Spain:{loc:[-3.5,40.25],off:[0,0]},
+	Bangladesh:{loc:[90.26,23.43],off:[0,0]},
+	NewZealand:{loc:[174.5,-41.2],off:[0,0]},
+	Germany:{loc:[13.3,52.3],off:[0,0]},
+	France:{loc:[2.2,48.5],off:[0,0]},
+	India:{loc:[77.2,28.6],off:[0,0] },
+};
+
+var india_ports = {
+	India:{loc:[77.2,28.6],off:[0,0] },
+	"United Arab Emirates": {loc:[54.3,24.4],off:[-30,8] },
+	USA:{loc:[-77,38.9],off:[0,0]},
+	"Saudi Arabia": {loc: [46.6,24.7],off:[-40,0] },
+	Pakistan:{loc:[73.10,33.40],off:[0,0]},
+	Oman:{loc:[58.36,23.37],off:[0,0]},
+	Kuwait:{loc:[48.00,29.30],off:[0,0]},
+	"United Kingdom":{loc:[-0.1,51.4],off:[-40,0]},
+	Canada:{loc:[-75.6,45.4],off:[0,10]},
+	Qatar:{loc:[51.35,25.15],off:[0,0] },
+	Australia:{loc:[149.1,-35.3],off:[0,0]},
+	Nepal:{loc:[85.20,27.45],off:[0,0]},
+	Bahrain:{loc:[50.30,26.10],off:[0,-20]},
+	Italy:{loc:[12.3,41.5],off:[0,0]},
+	Malaysia:{loc:[101.41,3.09],off:[0,0]},
+	Singapore:{loc:[103.8,1.3],off:[0,0]},
+	NewZealand:{loc:[174.5,-41.2],off:[0,0]},
+	Germany:{loc:[13.3,52.3],off:[0,0]},
+};
+
+var mexico_ports = {
+	Mexico:{loc:[-99.09,19.24],off:[0,0] },
+	USA:{loc:[-77,38.9],off:[0,0]},
+};
+
+var russia_ports = {
+	Russia:{loc:[37.6,55.7],off:[0,0] },
+	Ukraine:{loc:[30.5,50.4],off:[0,0]},
+	Kazakhstan:{loc:[71.4,51.1],off:[0,0]},
+	Germany:{loc:[13.3,52.3],off:[0,0]},
+	Uzbekistan:{loc:[69.2,41.2],off:[0,0]},
+	Belarus:{loc:[27.5,53.9],off:[0,0] },
+	USA:{loc:[-77,38.9],off:[0,0]},
+	Tajikistan: {loc: [68.48,38.33],off:[0,0] },
+	Estonia:{loc:[24.48,59.22],off:[0,0]},
+	Latvia:{loc:[24.08,56.53],off:[0,0]},
+	Israel:{loc:[35.12,31.47],off:[0,0]},
+	Kyrgyzstan:{loc:[74.46,42.54],off:[0,0]},
+};
+
+var syria_ports = {
+	Syria:{loc:[36.18,33.3],off:[0,0] },
+	Turkey:{loc:[32.54,39.57],off:[0,5]},
+	Lebanon:{loc:[35.31,33.53],off:[0,5]},
+	"Saudi Arabia": {loc: [46.6,24.7],off:[-40,0] },
+	Germany:{loc:[13.3,52.3],off:[0,0]},
+	Jordan:{loc:[35.52,31.57],off:[-10,0]},
+	Iraq:{loc:[44.3,33.2],off:[0,-5]},
+	Sweden:{loc:[18.03,59.2],off:[-10,10]},
+	Egypt:{loc:[31.14,30.01],off:[-5,-5]},
+};
+
+
+	</script>
+</body>
+</html>
