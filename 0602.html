@@ -130,26 +130,31 @@ td:hover {background-color: #AE0000;}
 function clean_china(country){
 	g1.selectAll(".china_route").remove();
 	g2.selectAll(".label_china").remove();
+	g1.selectAll(".ports_china").remove();
 }
 
 function clean_india(country){
 	g1.selectAll(".india_route").remove();
 	g2.selectAll(".label_india").remove();
+	g1.selectAll(".ports_india").remove();
 }
 
 function clean_mexico(country){
 	g1.selectAll(".mexico_route").remove();
 	g2.selectAll(".label_mexico").remove();
+	g1.selectAll(".ports_mexico").remove();
 }
 
 function clean_russia(country){
 	g1.selectAll(".russia_route").remove();
 	g2.selectAll(".label_russia").remove();
+	g1.selectAll(".ports_russia").remove();
 }
 
 function clean_syria(country){
 	g1.selectAll(".syria_route").remove();
 	g2.selectAll(".label_syria").remove();
+	g1.selectAll(".ports_syria").remove();
 }
 
 
@@ -189,6 +194,18 @@ function show_china(country){
 			.text(function(d) { return d.destination })
 			.attr("class","label_china")
 			.style("font-size", "10px")
+		//append china circles
+		portMarkers = g1.selectAll(".ports_china")
+			.data(china)
+			.enter()
+			.append("circle")
+			.attr("class","ports_china")
+			.attr("cx", function(d) { return projection(china_ports[d.destination].loc)[0] } )
+			.attr("cy", function(d) { return projection(china_ports[d.destination].loc)[1] } )
+			.attr("r", function(d) { return d.vol*10 })
+			.style("fill","none")
+			.style("stroke-width",1)
+			.style("stroke","#0000E3");
 	});
 		}
 
@@ -223,6 +240,18 @@ function show_india(country){
 			.text(function(d) { return d.destination })
 			.attr("class","label_india")
 			.style("font-size", "10px")
+		//append india circles
+		portMarkers = g1.selectAll(".ports_india")
+			.data(india)
+			.enter()
+			.append("circle")
+			.attr("class","ports_india")
+			.attr("cx", function(d) { return projection(india_ports[d.destination].loc)[0] } )
+			.attr("cy", function(d) { return projection(india_ports[d.destination].loc)[1] } )
+			.attr("r", function(d) { return d.vol*10 })
+			.style("fill","none")
+			.style("stroke-width",1)
+			.style("stroke","#4A4AFF");
 	});
 		}
 function show_mexico(country){
@@ -256,6 +285,18 @@ function show_mexico(country){
 			.text(function(d) { return d.destination })
 			.attr("class","label_mexico")
 			.style("font-size", "10px")
+		//append mexico circles
+		portMarkers = g1.selectAll(".ports_mexico")
+			.data(mexico)
+			.enter()
+			.append("circle")
+			.attr("class","ports_mexico")
+			.attr("cx", function(d) {return projection(mexico_ports[d.destination].loc)[0] } )
+			.attr("cy", function(d) { return projection(mexico_ports[d.destination].loc)[1] } )
+			.attr("r", function(d) { return d.vol*10 })
+			.style("fill","none")
+			.style("stroke-width",1)
+			.style("stroke","#7D7DFF");
 	});
 		}
 
@@ -290,6 +331,19 @@ function show_russia(country){
 			.text(function(d) { return d.destination })
 			.attr("class","label_russia")
 			.style("font-size", "10px")
+
+		//append russia circles
+		portMarkers = g1.selectAll(".ports_russia")
+			.data(russia)
+			.enter()
+			.append("circle")
+			.attr("class","ports_russia")
+			.attr("cx", function(d) { return projection(russia_ports[d.destination].loc)[0] } )
+			.attr("cy", function(d) { return projection(russia_ports[d.destination].loc)[1] } )
+			.attr("r", function(d) { return d.vol*10 })
+			.style("fill","none")
+			.style("stroke-width",1)
+			.style("stroke","#46A3FF");
 	});
 		}
 
@@ -326,6 +380,18 @@ function show_syria(country){
 			.text(function(d) { return d.destination })
 			.attr("class","label_syria")
 			.style("font-size", "10px")
+		//append syria circles
+		portMarkers = g1.selectAll(".ports_syria")
+			.data(syria)
+			.enter()
+			.append("circle")
+			.attr("class","ports_syria")
+			.attr("cx", function(d) { return projection(syria_ports[d.destination].loc)[0] } )
+			.attr("cy", function(d) { return projection(syria_ports[d.destination].loc)[1] } )
+			.attr("r", function(d) { return d.vol*10 })
+			.style("fill","none")
+			.style("stroke-width",1)
+			.style("stroke","#84C1FF");
 	});
 		}
 
@@ -340,6 +406,23 @@ var path = d3.geoPath().projection(projection);
 var svg = d3.select("#map").append("svg")
 	.attr("width", width)
 	.attr("height", height);
+var zoom = d3.zoom()
+	.scaleExtent([1, 8])
+	.on("zoom", zoomed);
+svg.call(zoom);
+function zoomed() {
+	svg
+	.selectAll('path') // To prevent stroke width from scaling
+	.attr('transform', d3.event.transform);
+
+	svg
+	.selectAll('text') // To prevent text from scaling
+	.attr('transform', d3.event.transform);
+
+	svg
+	.selectAll('circle') // To prevent circle from scaling
+	.attr('transform', d3.event.transform);
+	}
 // Create a few groups to layer elements correctly
 var g1 = svg.append("g");  
 var g2 = svg.append("g");
@@ -444,71 +527,6 @@ function drawTrade() {
 		var russia = routes.slice(35,47);
 		var syria = routes.slice(47,56);
 		var maxVolume = d3.max(routes, function(d) { return d.vol; });
-		
-		//append china circles
-		portMarkers = g1.selectAll(".ports_china")
-			.data(china)
-			.enter()
-			.append("circle")
-			.attr("class","ports")
-			.attr("cx", function(d) { return projection(china_ports[d.destination].loc)[0] } )
-			.attr("cy", function(d) { return projection(china_ports[d.destination].loc)[1] } )
-			.attr("r", function(d) { return d.vol*10 })
-			.style("fill","none")
-			.style("stroke-width",1)
-			.style("stroke","#0000E3");
-
-		//append india circles
-		portMarkers = g1.selectAll(".ports_india")
-			.data(india)
-			.enter()
-			.append("circle")
-			.attr("class","ports_india")
-			.attr("cx", function(d) { return projection(india_ports[d.destination].loc)[0] } )
-			.attr("cy", function(d) { return projection(india_ports[d.destination].loc)[1] } )
-			.attr("r", function(d) { return d.vol*10 })
-			.style("fill","none")
-			.style("stroke-width",1)
-			.style("stroke","#4A4AFF");
-
-		//append mexico circles
-		portMarkers = g1.selectAll(".ports_mexico")
-			.data(mexico)
-			.enter()
-			.append("circle")
-			.attr("class","ports_mexico")
-			.attr("cx", function(d) {return projection(mexico_ports[d.destination].loc)[0] } )
-			.attr("cy", function(d) { return projection(mexico_ports[d.destination].loc)[1] } )
-			.attr("r", function(d) { return d.vol*10 })
-			.style("fill","none")
-			.style("stroke-width",1)
-			.style("stroke","#7D7DFF");
-
-		//append russia circles
-		portMarkers = g1.selectAll(".ports_russia")
-			.data(russia)
-			.enter()
-			.append("circle")
-			.attr("class","ports_mexico")
-			.attr("cx", function(d) { return projection(russia_ports[d.destination].loc)[0] } )
-			.attr("cy", function(d) { return projection(russia_ports[d.destination].loc)[1] } )
-			.attr("r", function(d) { return d.vol*10 })
-			.style("fill","none")
-			.style("stroke-width",1)
-			.style("stroke","#46A3FF");
-
-		//append syria circles
-		portMarkers = g1.selectAll(".ports_syria")
-			.data(syria)
-			.enter()
-			.append("circle")
-			.attr("class","ports_syria")
-			.attr("cx", function(d) { return projection(syria_ports[d.destination].loc)[0] } )
-			.attr("cy", function(d) { return projection(syria_ports[d.destination].loc)[1] } )
-			.attr("r", function(d) { return d.vol*10 })
-			.style("fill","none")
-			.style("stroke-width",1)
-			.style("stroke","#84C1FF");
 			;});
 			}
 
@@ -568,7 +586,7 @@ var russia_ports = {
 	Tajikistan: {loc: [68.48,38.33],off:[0,0] },
 	Estonia:{loc:[24.48,59.22],off:[0,0]},
 	Latvia:{loc:[24.08,56.53],off:[0,0]},
-	Israel:{loc:[35.12,31.47],off:[0,0]},
+	Israel:{loc:[35.12,31.47],off:[-28,0]},
 	Kyrgyzstan:{loc:[74.46,42.54],off:[0,0]},
 };
 
@@ -578,7 +596,7 @@ var syria_ports = {
 	Lebanon:{loc:[35.31,33.53],off:[0,5]},
 	"Saudi Arabia": {loc: [46.6,24.7],off:[-40,0] },
 	Germany:{loc:[13.3,52.3],off:[0,0]},
-	Jordan:{loc:[35.52,31.57],off:[-10,0]},
+	Jordan:{loc:[35.52,31.57],off:[-5,0]},
 	Iraq:{loc:[44.3,33.2],off:[0,-5]},
 	Sweden:{loc:[18.03,59.2],off:[-10,10]},
 	Egypt:{loc:[31.14,30.01],off:[-5,-5]},
