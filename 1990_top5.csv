@@ -1,4 +1,4 @@
-destination,vol,people,long,lat,longdest,latdest,longoff,latoff
+group,vol,value,long,lat,longdest,latdest,longoff,latoff
 Russia,1,12653331,37.6,55.7,37.6,55.7,0,0
 Ukraine,0.396583161,5018098,37.6,55.7,30.3,50.3,0,0
 Kazakhstan,0.19553041,2474111,37.6,55.7,71.4,51.1,0,0
